@@ -1,0 +1,18 @@
+{
+  "name": "nonameyet",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.3.1",
+    "astro": "^3.5.3",
+    "paper": "^0.12.17",
+    "typescript": "^5.2.2"
+  }
+}

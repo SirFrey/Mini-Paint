@@ -1,0 +1,103 @@
+---
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout title='page'>
+	<main>
+		<h1>Mini Paint</h1>
+		<div class='container'>
+			<canvas id='canvas' width='500' height='400'></canvas>
+			<input type='color' class='colorInput' />
+			<input type='range' min='1' max='15' class='rangeInput' />
+		</div>
+	</main>
+</Layout>
+<script>
+	const canvas = document.getElementById('canvas') as HTMLCanvasElement
+	const rect = canvas.getBoundingClientRect()
+	const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+	const coords: { x: number; y: number } = { x: 0, y: 0 }
+	let lineWidth: HTMLInputElement, color: HTMLInputElement, painting: boolean
+	const points: { x: number; y: number }[] = []
+
+	canvas.addEventListener('mousedown', e => {
+		lineWidth = document.querySelector('.rangeInput') as HTMLInputElement
+		color = document.querySelector('.colorInput') as HTMLInputElement
+		getPosition(e)
+		painting = true
+		points.length = 0
+		addPoint(coords.x, coords.y)
+	})
+
+	canvas.addEventListener('mouseup', () => {
+		painting = false
+		points.length = 0
+	})
+
+	canvas.addEventListener('mousemove', e => {
+		if (painting) {
+			getPosition(e)
+			addPoint(coords.x, coords.y)
+			smoothLine()
+		}
+	})
+
+	const getPosition = (event: MouseEvent) => {
+		coords.x = event.clientX - rect.left
+		coords.y = event.clientY - rect.top
+	}
+
+	const addPoint = (x: number, y: number) => {
+		points.push({ x, y })
+	}
+
+	const smoothLine = () => {
+		if (points.length < 3) {
+			return
+		}
+		ctx.beginPath()
+		ctx.lineWidth = lineWidth.value as any
+		ctx.strokeStyle = color.value
+		ctx.lineCap = 'round'
+		ctx.lineJoin = 'round'
+		ctx.shadowBlur = 2
+		ctx.shadowColor = color.value
+		for (let i = 2; i < points.length; i++) {
+			const xc = (points[i - 1].x + points[i].x) / 2
+			const yc = (points[i - 1].y + points[i].y) / 2
+			ctx.quadraticCurveTo(points[i - 1].x, points[i - 1].y, xc, yc)
+		}
+		ctx.stroke()
+		ctx.closePath()
+	}
+</script>
+<style>
+	.container {
+		width: 500px;
+		height: 100vh;
+		display: grid;
+		grid-template-rows: 1fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr;
+	}
+	#canvas {
+		grid-column: span 2;
+	}
+	main {
+		display: grid;
+		place-content: center;
+		user-select: none;
+	}
+	.rangeInput {
+		width: 100%;
+		height: 50px;
+	}
+	.colorInput {
+		width: 100%;
+		height: 50px;
+	}
+	canvas {
+		/* border: 4px solid blue; */
+		background-color: #ededed;
+		user-select: none;
+	}
+</style>
